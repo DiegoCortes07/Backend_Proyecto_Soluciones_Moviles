@@ -13,6 +13,14 @@ Like.init(
       autoIncrement: true,
       allowNull: false,
     },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    songId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     sequelize: db,
