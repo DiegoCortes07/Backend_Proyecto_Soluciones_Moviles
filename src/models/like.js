@@ -1,0 +1,36 @@
+import { DataTypes, Model } from "sequelize";
+import db from "../config/database.js";
+
+class Like extends Model {
+  static id;
+}
+
+Like.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
+  },
+  {
+    sequelize: db,
+    modelName: "Like",
+    tableName: "like",
+    timestamps: false,
+  }
+);
+
+Like.associations = (models) => {
+  Like.belongsTo(models.User, {
+    foreignKey: "userId",
+    as: "user",
+  });
+  Like.belongsTo(models.Song, {
+    foreignKey: "songId",
+    as: "song",
+  });
+};
+
+export default Like;
