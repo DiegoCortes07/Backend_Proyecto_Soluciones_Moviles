@@ -41,6 +41,7 @@ User.init(
         profilePhoto: {
             type: DataTypes.STRING,
             allowNull: true,
+            defaultValue: null,
         },
         language: {
             type: DataTypes.STRING,
@@ -65,5 +66,10 @@ User.init(
         timestamps: true,
     }
 );
+
+User.associate = (models) => {
+    User.hasMany(models.Playlist, { foreignKey: 'userId', as: 'playlists' });
+    User.hasMany(models.Like, { foreignKey: 'userId', as: 'likes' });   
+};
 
 export default User;

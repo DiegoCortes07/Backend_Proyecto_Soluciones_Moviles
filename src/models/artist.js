@@ -27,6 +27,7 @@ Artist.init(
     image: {
       type: DataTypes.STRING,
       allowNull: true,
+      defaultValue: null,
     },
   },
   {
@@ -36,5 +37,12 @@ Artist.init(
     timestamps: true,
   }
 );
+
+
+
+Artist.associate = (models) => {
+    Artist.hasMany(models.Album, { foreignKey: 'artistId', as: 'albums' });
+    Artist.hasMany(models.Song, { foreignKey: 'artistId', as: 'songs' });
+};
 
 export default Artist;

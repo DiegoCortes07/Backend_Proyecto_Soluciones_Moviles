@@ -41,6 +41,10 @@ Playlist.associate = (models) => {
         foreignKey: "userId",
         as: "user",
     });
+    Playlist.hasMany(models.PlaylistSong, {
+        foreignKey: "playlistId",
+        as: "songs",
+    });
 }
 
 export default Playlist;

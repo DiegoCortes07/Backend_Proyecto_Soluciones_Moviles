@@ -5,9 +5,11 @@ class Song extends Model {
   static id
   static tittle
   static duration
-  static audioUrl
+  static cloudinaryPublicId
+  static cloudinarySecureUrl
   static explicit
   static enabled
+  static year
 }
 
 Song.init(
@@ -26,7 +28,11 @@ Song.init(
         type: DataTypes.INTEGER,
         allowNull: true,
         },
-    audioUrl: {
+    cloudinaryPublicId: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        },
+    cloudinarySecureUrl: {
         type: DataTypes.STRING,
         allowNull: false,
         },

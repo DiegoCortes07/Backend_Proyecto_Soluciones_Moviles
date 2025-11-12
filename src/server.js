@@ -6,16 +6,13 @@ import cors from "cors";
 import express from "express";
 import db from "./models/index.js";
 import http from "http";
+import apiRoutes from "./routes/api.js";
 
 class Server {
   constructor() {
     this.app = express();
     this.port = process.env.PORT || 3000;
     this.server = http.createServer(this.app);
-
-    this.paths = {
-      // definir rutas
-    };
 
     this.middlewares();
     this.connectDB();
@@ -30,7 +27,6 @@ class Server {
       console.error("Unable to connect to the database:", error);
     }
 
-    // TODO: agregar los modelos a la base de datos
     await db.sequelize.sync({ alter: true });
     console.log("All models were synchronized successfully.");
   }
@@ -42,7 +38,7 @@ class Server {
   }
 
   routes() {
-    // definir las rutas
+    this.app.use('/api', apiRoutes);
   }
 
   listen() {

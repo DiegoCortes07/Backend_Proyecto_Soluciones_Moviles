@@ -27,6 +27,7 @@ Album.init(
     image: {
       type: DataTypes.STRING,
       allowNull: true,
+      defaultValue: null,
     },
   },
   {
@@ -41,6 +42,10 @@ Artist.associate = (models) => {
   Album.belongsTo(models.Artist, {
     foreignKey: "artistId",
     as: "artist",
+  });
+  Album.hasMany(models.Song, {
+    foreignKey: "albumId",
+    as: "songs",
   });
 }
 

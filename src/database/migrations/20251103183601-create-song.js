@@ -19,7 +19,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
-      audio_url: {
+      cloudinaryPublicId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      cloudinarySecureUrl: {
         type: Sequelize.STRING,
         allowNull: false,
       },
