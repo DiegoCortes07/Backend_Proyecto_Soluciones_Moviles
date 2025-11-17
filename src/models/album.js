@@ -6,7 +6,8 @@ class Album extends Model {
   static id
   static title
   static year
-  static image}
+  static image
+  static genre}
 
 Album.init(
   {
@@ -28,6 +29,10 @@ Album.init(
       type: DataTypes.STRING,
       allowNull: true,
       defaultValue: null,
+    },
+    genre: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {

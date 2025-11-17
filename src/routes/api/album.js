@@ -1,9 +1,9 @@
 import Router from "express";
-import { createAlbumForArtist, getAlbumsByArtist } from "../../controllers/albumController.js";
+import { createAlbumForArtist, getAllAlbums, getAlbumById } from "../../controllers/albumController.js";
 
 const router = Router();
 
 router.post("/:artistId", createAlbumForArtist);
-router.get("/:artistId", getAlbumsByArtist);
-
+router.get("/", getAllAlbums);
+router.get("/:albumId", getAlbumById);
 export default router;

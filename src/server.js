@@ -7,6 +7,13 @@ import express from "express";
 import db from "./models/index.js";
 import http from "http";
 import apiRoutes from "./routes/api.js";
+import fileUpload from "express-fileupload";
+
+import * as seedArtist from "./database/seeders/20251116193312-artist.js";
+import * as seedAlbum from "./database/seeders/20251116194007-album.js";
+import * as seedSong from "./database/seeders/20251116194517-song.js";
+import * as seedUser from "./database/seeders/20251117161952-user.js";
+
 
 class Server {
   constructor() {
@@ -15,6 +22,13 @@ class Server {
     this.server = http.createServer(this.app);
 
     this.middlewares();
+
+    this.app.use(fileUpload({
+      useTempFiles: true,
+      tempFileDir: './src/tmp',
+      createParentPath: true
+    }));
+    
     this.connectDB();
     this.routes();
   }
@@ -29,6 +43,12 @@ class Server {
 
     await db.sequelize.sync({ alter: true });
     console.log("All models were synchronized successfully.");
+
+    // iniciamos los seeders
+    await seedArtist.up(db.sequelize.getQueryInterface(), db.Sequelize);
+    await seedAlbum.up(db.sequelize.getQueryInterface(), db.Sequelize);
+    await seedSong.up(db.sequelize.getQueryInterface(), db.Sequelize);
+    await seedUser.up(db.sequelize.getQueryInterface(), db.Sequelize);
   }
 
   middlewares() {

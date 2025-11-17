@@ -1,0 +1,9 @@
+// obtener todas las canciones del sistema
+get http://localhost:8080/api/songs/
+###
+// obtener una cancion por ID
+get http://localhost:8080/api/songs/1
+
+###
+// obtener canciones de un artista por ID
+get http://localhost:8080/api/songs/artist/1

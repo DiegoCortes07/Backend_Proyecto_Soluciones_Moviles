@@ -26,7 +26,6 @@ Like.init(
     sequelize: db,
     modelName: "Like",
     tableName: "like",
-    timestamps: false,
   }
 );
 

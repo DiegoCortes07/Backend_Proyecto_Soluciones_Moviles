@@ -1,0 +1,18 @@
+// crear album de un artista por ID
+post http://localhost:8080/api/albums/1
+Content-Type: application/json
+
+{
+    "title": "Lyke Mike",
+    "year": 2023,
+    "genre": "Reggaeton, Trap",
+    "image": "https://i.scdn.co/image/ab67616d0000b273b9b8921a8c791aacabea9677"
+}
+
+###
+// obtener todos los albums
+get http://localhost:8080/api/albums/
+
+###
+// obtener album por ID
+get http://localhost:8080/api/albums/1

@@ -1,0 +1,24 @@
+// obtener todos los artistas
+get http://localhost:8080/api/artists/
+###
+
+
+// crear un nuevo artista
+post http://localhost:8080/api/artists/
+Content-Type: application/json
+
+{
+    "name": "Myke towers",
+    "genre": "Reggaeton, Trap",
+    "description": "Michael Torres Santos, conocido artísticamente como Myke Towers, es un rapero, cantante y compositor puertorriqueño. Nació el 15 de enero de 1994 en Río Piedras, Puerto Rico. Myke Towers es conocido por su estilo versátil que combina elementos de reggaetón, trap y música urbana. Ha ganado popularidad por sus letras pegajosas y su habilidad para adaptarse a diferentes géneros musicales. A lo largo de su carrera, ha lanzado varios álbumes y sencillos exitosos, colaborando con otros artistas destacados en la industria de la música latina."
+}
+###
+
+
+// obtener un artista por ID
+get http://localhost:8080/api/artists/1
+
+###
+
+// obtener canciones de un artista por ID
+get http://localhost:8080/api/artists/1/songs

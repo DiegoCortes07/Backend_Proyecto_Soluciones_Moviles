@@ -34,7 +34,7 @@ Artist.init(
     sequelize: db,
     modelName: "Artist",
     tableName: "artist",
-    timestamps: true,
+    timestamps: false,
   }
 );
 

@@ -15,10 +15,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      duration: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
       cloudinaryPublicId: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -29,7 +25,7 @@ module.exports = {
       },
       albumId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'album',
           key: 'id',
@@ -60,7 +56,11 @@ module.exports = {
       year: {
         type: Sequelize.INTEGER,
         allowNull: true,
-      }
+      },
+      genre: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     });
   },
 

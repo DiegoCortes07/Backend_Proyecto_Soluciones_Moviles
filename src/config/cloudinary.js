@@ -7,15 +7,20 @@ cloudinary.v2.config({
     cloud_name: process.env.CLOUDINARY_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure : false
+    secure: false
 })
 
-export default async function uploadFile(file)  {
+export default async function uploadFile(file) {
     return await cloudinary.v2.uploader.upload(file.tempFilePath, {
         folder: "music-api",
         public_id: Randomstring.generate(12),
         resource_type: "auto"
+
+
     });
+
+    console.log("FILES =>", req.files);
+    console.log("BODY  =>", req.body);
 }
 
 export async function deleteFile(publicId) {

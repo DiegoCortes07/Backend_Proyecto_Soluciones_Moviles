@@ -1,14 +1,11 @@
 import Router from "express";
-import { uploadSong } from "../../controllers/songController.js";
-import fileUpload from "express-fileupload";
+import { uploadSong , getAllSongs,getSongById,getSongsByArtist} from "../../controllers/songController.js";
 
 const router = Router();
 
-router.use(fileUpload({
-    useTempFiles: true,
-    tempFileDir: '/src/tmp'
-}));
-
 router.post("/upload", uploadSong);
+router.get("/",getAllSongs);
+router.get("/:id",getSongById);
+router.get("/artist/:artistId",getSongsByArtist);   
 
 export default router;
