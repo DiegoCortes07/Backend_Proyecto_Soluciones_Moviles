@@ -45,6 +45,10 @@ Song.init(
             type: DataTypes.INTEGER,
             allowNull: true,
         },
+        artistName : {
+            type: DataTypes.STRING,
+            allowNull: true,
+        }
     },
     {
         sequelize: db,

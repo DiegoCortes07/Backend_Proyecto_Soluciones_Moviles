@@ -65,7 +65,9 @@ export const login = async (req = request, res = response) => {
             return res.status(401).send("Credenciales inválidas");
         }
 
+        // si la contraseña no coincide
         const isPasswordValid = bcrypt.compareSync(password, user.password);
+
         if (!isPasswordValid) {
             return res.status(401).send("Credenciales inválidas");
         }
