@@ -1,4 +1,5 @@
 'use strict';
+import bcrypt from "bcryptjs";
 
 export async function up(queryInterface, Sequelize) {
 
@@ -6,12 +7,12 @@ export async function up(queryInterface, Sequelize) {
     {
       username: 'diego',
       email: 'diego@test.com',
-      password: 'password123',
+      password: await bcrypt.hash("password123", 10),
     },
     {
       username: 'cristian',
       email: 'cristian@test.com',
-      password: 'password123',
+      password: await bcrypt.hash("123password", 10),
     }
   ]);
 }
