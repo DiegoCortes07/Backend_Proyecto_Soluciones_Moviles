@@ -1,7 +1,19 @@
 'use strict';
 
 export async function up(queryInterface, Sequelize) {
-  const now = new Date();
+
+  // Verificar si la tabla artist ya tiene datos
+  const artists = await queryInterface.sequelize.query(
+    'SELECT COUNT(*) as count FROM artist;',
+    { type: Sequelize.QueryTypes.SELECT }
+  );
+
+  if (artists[0].count > 0) {
+    console.log("Seed Artist: tabla con datos, se omite inserción.");
+    return;
+  }
+
+  console.log("Seed Artist: insertando datos...");
 
   return queryInterface.bulkInsert('artist', [
     {
@@ -30,4 +42,3 @@ export async function up(queryInterface, Sequelize) {
 export async function down(queryInterface, Sequelize) {
   return queryInterface.bulkDelete('artist', null, {});
 }
-

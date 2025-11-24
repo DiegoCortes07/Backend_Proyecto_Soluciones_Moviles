@@ -9,31 +9,40 @@ const generateToken = (userId) => {
     });
 };
 
-export const register = async (req = request, res = response) => {
+export const register = async (req, res) => {
     const { username, email, password } = req.body;
 
+    // Validar que no falten campos
     if (!username || !email || !password) {
-        return res.status(400).send("Faltan campos obligatorios");
+        return res.status(400).json({
+            message: "Faltan campos obligatorios. Asegúrate de completar nombre, correo y contraseña."
+        });
     }
 
     try {
+        // Verificar si ya existe un usuario con el correo proporcionado
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
-            return res.status(409).send("El correo electrónico ya está en uso");
+            return res.status(409).json({
+                message: "El correo electrónico ya está en uso. Por favor, usa otro correo."
+            });
         }
 
+        // Hashear la contraseña
         const hashedPassword = bcrypt.hashSync(password, 10);
 
+        // Crear un nuevo usuario
         const newUser = await User.create({
             username,
             email,
             password: hashedPassword,
         });
 
-     
+        // Generar el token de autenticación
         const token = generateToken(newUser.id);
 
-        res.status(201).json({
+        // Responder con el usuario y el token
+        return res.status(201).json({
             user: {
                 id: newUser.id,
                 username: newUser.username,
@@ -47,8 +56,10 @@ export const register = async (req = request, res = response) => {
             }
         });
     } catch (error) {
-        console.error(error);
-        return res.status(500).send("Error del servidor");
+        console.error("Error al registrar usuario:", error);
+        return res.status(500).json({
+            message: "Hubo un error en el servidor. Por favor, intenta más tarde."
+        });
     }
 };
 
@@ -65,7 +76,9 @@ export const login = async (req = request, res = response) => {
             return res.status(401).send("Credenciales inválidas");
         }
 
+        // si la contraseña no coincide
         const isPasswordValid = bcrypt.compareSync(password, user.password);
+
         if (!isPasswordValid) {
             return res.status(401).send("Credenciales inválidas");
         }
@@ -119,7 +132,7 @@ export const getUserPlaylists = async (req = request, res = response) => {
             return res.status(404).send("Usuario no encontrado");
         }
 
-        if(user.playlists.length === 0){
+        if (user.playlists.length === 0) {
             return res.status(204).send("No se encontraron playlists para este usuario");
         }
 

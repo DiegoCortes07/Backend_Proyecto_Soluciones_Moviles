@@ -14,7 +14,6 @@ import * as seedAlbum from "./database/seeders/20251116194007-album.js";
 import * as seedSong from "./database/seeders/20251116194517-song.js";
 import * as seedUser from "./database/seeders/20251117161952-user.js";
 
-
 class Server {
   constructor() {
     this.app = express();
@@ -28,7 +27,9 @@ class Server {
       tempFileDir: './src/tmp',
       createParentPath: true
     }));
-    
+
+    this.app.use(express.urlencoded({ extended: true }));
+
     this.connectDB();
     this.routes();
   }
@@ -41,14 +42,10 @@ class Server {
       console.error("Unable to connect to the database:", error);
     }
 
-    await db.sequelize.sync({ alter: true });
+    await db.sequelize.sync({ alter: false });
     console.log("All models were synchronized successfully.");
 
-    // iniciamos los seeders
-    await seedArtist.up(db.sequelize.getQueryInterface(), db.Sequelize);
-    await seedAlbum.up(db.sequelize.getQueryInterface(), db.Sequelize);
-    await seedSong.up(db.sequelize.getQueryInterface(), db.Sequelize);
-    await seedUser.up(db.sequelize.getQueryInterface(), db.Sequelize);
+    this.seeders();
   }
 
   middlewares() {
@@ -62,9 +59,16 @@ class Server {
   }
 
   listen() {
-    this.server.listen(this.port, () => {
+    this.server.listen(this.port,'0.0.0.0', () => {
       console.log(`Server is running on port ${this.port}`);
     });
+  }
+
+  async seeders() {
+    await seedArtist.up(db.sequelize.getQueryInterface(), db.Sequelize);
+    await seedAlbum.up(db.sequelize.getQueryInterface(), db.Sequelize);
+    await seedSong.up(db.sequelize.getQueryInterface(), db.Sequelize);
+    await seedUser.up(db.sequelize.getQueryInterface(), db.Sequelize);
   }
 }
 
