@@ -17,6 +17,9 @@ export const uploadSong = async (req = request, res = response) => {
     console.log("FILES =>", req.files);
     console.log("BODY  =>", req.body);
 
+
+    const artist = await Artist.findByPk(req.body.artistId);
+
     try {
         const song = await Song.create({
             title: req.body.title,
@@ -27,6 +30,8 @@ export const uploadSong = async (req = request, res = response) => {
             explicit: req.body.explicit,
             cloudinaryPublicId: result.public_id,
             cloudinarySecureUrl: result.secure_url,
+            artistName: artist ? artist.name : null,
+            imageUrl: req.body.imageUrl ? req.body.imageUrl : null,
         });
 
         res.status(201).json({
@@ -45,13 +50,12 @@ export const uploadSong = async (req = request, res = response) => {
 };
 
 export const getAllSongs = async (req = request, res = response) => {
+   console.log("Song importado es:", Song);
     try {
         const songs = await Song.findAll();
-        if (songs.length === 0) {
-            return res.status(404).send("No se encontraron canciones");
-        }
         return res.status(200).json(songs);
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).send("Error al obtener las canciones");
     }
 };
