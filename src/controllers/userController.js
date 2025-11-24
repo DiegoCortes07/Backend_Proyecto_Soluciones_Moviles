@@ -2,6 +2,9 @@ import { response, request } from "express";
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { enviarCorreo } from "../mail/mailsystem.js";
+import fs from "fs";
+import path from "path";
 
 const generateToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -9,7 +12,11 @@ const generateToken = (userId) => {
     });
 };
 
-export const register = async (req, res) => {
+
+const templatePath = path.resolve("src/mail/template/confirmMail.html");
+let html = fs.readFileSync(templatePath, "utf8");
+
+export const register = async (req = request, res = response) => {
     const { username, email, password } = req.body;
 
     // Validar que no falten campos
@@ -73,7 +80,7 @@ export const login = async (req = request, res = response) => {
     try {
         const user = await User.findOne({ where: { email } });
         if (!user) {
-            return res.status(401).send("Credenciales inválidas");
+            return res.status(401).send("Credenciales a inválidas");
         }
 
         // si la contraseña no coincide
@@ -84,6 +91,15 @@ export const login = async (req = request, res = response) => {
         }
 
         const token = generateToken(user.id);
+        
+
+        html = html
+            .replace(/{{USER_NAME}}/g, user.username)
+            .replace(/{{VERIFICATION_URL}}/g, "aa")
+            .replace(/{{APP_NAME}}/g, "Tunesly")
+            .replace(/{{YEAR}}/g, new Date().getFullYear());
+
+        await enviarCorreo(email, "confirmacion",html);
 
         res.status(200).json({
             user: {
