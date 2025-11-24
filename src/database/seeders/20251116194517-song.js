@@ -24,6 +24,7 @@ export async function up(queryInterface, Sequelize) {
       cloudinarySecureUrl:
         "https://res.cloudinary.com/dyrzwal7v/video/upload/v1763322770/The_Beatles_-_Something_dmibj9.mp3",
       artistName: "The Beatles",
+      imageUrl: "https://m.media-amazon.com/images/M/MV5BZjI0ODFlM2YtYzQ4Yy00MGM4LTkxMDYtYTAyMTI2MGQzYzJiXkEyXkFqcGc@._V1_.jpg"
     },
     {
       title: "Come Together",
@@ -35,6 +36,7 @@ export async function up(queryInterface, Sequelize) {
       cloudinarySecureUrl:
         "https://res.cloudinary.com/dyrzwal7v/video/upload/v1763322879/The_Beatles_-_Come_Together_bsmlyg.mp3",
       artistName: "The Beatles",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b273dc30583ba717007b00cceb25"
     },
     {
       title: "SI VEO A TU MAMÁ",
@@ -45,7 +47,8 @@ export async function up(queryInterface, Sequelize) {
       cloudinaryPublicId: "SI VEO A TU MAMA - Bad Bunny",
       cloudinarySecureUrl:
         "https://res.cloudinary.com/dyrzwal7v/video/upload/v1763322977/BAD_BUNNY_-_SI_VEO_A_TU_MAM%C3%81_YHLQMDLG_Video_Oficial_cuixso.mp3",
-      artistName: "Bad Bunny"
+      artistName: "Bad Bunny",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b273548f7ec52da7313de0c5e4a0"
     },
     {
       title: "LA ZONA",
@@ -56,7 +59,8 @@ export async function up(queryInterface, Sequelize) {
       cloudinaryPublicId: "LA ZONA - Bad Bunny",
       cloudinarySecureUrl:
         "https://res.cloudinary.com/dyrzwal7v/video/upload/v1763323141/BAD_BUNNY_-_LA_ZONA_YHLQMDLG_Visualizer_sccwwj.mp3",
-      artistName: "Bad Bunny"
+      artistName: "Bad Bunny",
+      imageUrl: "https://i.scdn.co/image/ab67616d0000b273548f7ec52da7313de0c5e4a0"
     },
     {
       title: "Qué quieres de mí",
@@ -67,7 +71,8 @@ export async function up(queryInterface, Sequelize) {
       cloudinaryPublicId: "Que quieres de mi - Myke Towers",
       cloudinarySecureUrl:
         "https://res.cloudinary.com/dyrzwal7v/video/upload/v1763323242/Myke_Towers_Eladio_Carri%C3%B3n_-_QU%C3%89_QUIERES_DE_MI__Visualizer_hehvk8.mp3",
-      artistName: "Myke Towers"
+      artistName: "Myke Towers",
+      imageUrl: "https://i1.sndcdn.com/artworks-RMO4jQjB6dUh-0-t500x500.jpg"
     },
     {
       title: "Yo estaré",
@@ -78,7 +83,8 @@ export async function up(queryInterface, Sequelize) {
       cloudinaryPublicId: "Yo estaré - Myke Towers",
       cloudinarySecureUrl:
         "https://res.cloudinary.com/dyrzwal7v/video/upload/v1763323321/YO_ESTAR%C3%89_njyrlq.mp3",
-      artistName: "Myke Towers"
+      artistName: "Myke Towers",
+      imageUrl: "https://i1.sndcdn.com/artworks-DukzEMZwKvZEXV53-reEi2g-t500x500.jpg"
     },
   ]);
 }

@@ -31,6 +31,7 @@ export const uploadSong = async (req = request, res = response) => {
             cloudinaryPublicId: result.public_id,
             cloudinarySecureUrl: result.secure_url,
             artistName: artist ? artist.name : null,
+            imageUrl: req.body.imageUrl ? req.body.imageUrl : null,
         });
 
         res.status(201).json({

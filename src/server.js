@@ -28,6 +28,8 @@ class Server {
       createParentPath: true
     }));
 
+    this.app.use(express.urlencoded({ extended: true }));
+
     this.connectDB();
     this.routes();
   }

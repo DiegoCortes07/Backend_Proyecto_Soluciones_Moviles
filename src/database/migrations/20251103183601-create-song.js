@@ -64,7 +64,11 @@ module.exports = {
       artistName : {
         type: Sequelize.STRING,
         allowNull: true,
-      }
+      },
+      imageUrl : {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     });
   },
 
