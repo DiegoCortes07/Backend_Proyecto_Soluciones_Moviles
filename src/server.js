@@ -14,7 +14,6 @@ import * as seedAlbum from "./database/seeders/20251116194007-album.js";
 import * as seedSong from "./database/seeders/20251116194517-song.js";
 import * as seedUser from "./database/seeders/20251117161952-user.js";
 
-
 class Server {
   constructor() {
     console.log(process.env.MAIL_PORT)
@@ -29,7 +28,9 @@ class Server {
       tempFileDir: './src/tmp',
       createParentPath: true
     }));
-    
+
+    this.app.use(express.urlencoded({ extended: true }));
+
     this.connectDB();
     this.routes();
   }
@@ -44,11 +45,12 @@ class Server {
       console.error("Unable to connect to the database:", error);
     }
 
-    await db.sequelize.sync({ alter: true });
+    await db.sequelize.sync({ alter: false });
     console.log("All models were synchronized successfully.");
     
     this.seeders();
 
+    this.seeders();
   }
 
   middlewares() {
@@ -62,7 +64,7 @@ class Server {
   }
 
   listen() {
-    this.server.listen(this.port, () => {
+    this.server.listen(this.port,'0.0.0.0', () => {
       console.log(`Server is running on port ${this.port}`);
     });
   }
