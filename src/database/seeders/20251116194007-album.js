@@ -3,6 +3,16 @@
 export async function up(queryInterface, Sequelize) {
   const now = new Date();
 
+  const albums = await queryInterface.sequelize.query(
+    'SELECT COUNT(*) as count FROM album;',
+    { type: Sequelize.QueryTypes.SELECT }
+  );
+
+  if (albums[0].count > 0) {
+    console.log("Seed Album: tabla con datos, se omite inserción.");
+    return;
+  }
+
   return queryInterface.bulkInsert("album", [
     {
       title: "Abbey Road",

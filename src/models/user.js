@@ -6,6 +6,7 @@ class User extends Model {
     static username;
     static email;
     static password;
+    static enabled;
     static plan;
     static profilePhoto;
     static language;
@@ -32,6 +33,11 @@ User.init(
         password: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        enabled: {
+            type: DataTypes.BOOLEAN,
+            allowNull:true,
+            defaultValue: false
         },
         plan: {
             type: DataTypes.STRING,
