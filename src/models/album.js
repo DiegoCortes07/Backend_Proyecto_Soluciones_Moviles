@@ -34,6 +34,10 @@ Album.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    artistName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     sequelize: db,

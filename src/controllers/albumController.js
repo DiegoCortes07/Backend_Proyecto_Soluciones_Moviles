@@ -49,3 +49,18 @@ export const getAlbumById = async (req = request, res = response) => {
         return res.status(500).send("Error al obtener el álbum");
     }   
 };
+
+export const getSongsForAlbum = async (req = request, res = response) => {
+    const { albumId } = req.params;
+    try {
+        const album = await Album.findByPk(albumId, {
+            include: 'songs'
+        });
+        if (!album) {
+            return res.status(404).send("Álbum no encontrado");
+        }
+        return res.status(200).json(album.songs);
+    } catch (error) {
+        return res.status(500).send("Error al obtener las canciones del álbum");
+    }
+};
