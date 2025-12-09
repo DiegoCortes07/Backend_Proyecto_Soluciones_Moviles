@@ -4,6 +4,7 @@ import Playlist from "../models/playlist.js";
 import PlaylistSong from "../models/playlistSong.js";
 import Song from "../models/song.js";
 import jwt from "jsonwebtoken";
+import { uploadFile, deleteFile } from "../config/cloudinary.js";
 
 export const getUserPlaylists = async (req = request, res = response) => {
     const token = req.header("Authorization")?.replace("Bearer ", "");
@@ -206,6 +207,94 @@ export const deleteSongFromPlaylist = async (req = request, res = response) => {
         res.status(200).send("Canción eliminada de la playlist correctamente");
     }
     catch (error) {
+        console.error(error);
+        return res.status(500).send("Error del servidor");
+    }
+};
+
+export const uploadPlaylistImage = async (req = request, res = response) => {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const { playlistId } = req.params;
+
+    if (!token) {
+        return res.status(401).send("No se proporcionó token de autenticación");
+    }
+
+    try {
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findByPk(decoded.id);
+
+        if (!user) return res.status(404).send("Usuario no encontrado");
+
+        const playlist = await Playlist.findByPk(playlistId);
+
+        if (!playlist) return res.status(404).send("Playlist no encontrada");
+
+        if (playlist.userId !== user.id) {
+            return res.status(403).send("No tienes permiso para modificar esta playlist");
+        }
+
+
+        if (!req.files || !req.files.image) {
+            return res.status(400).send("No se proporcionó ninguna imagen");
+        }
+
+        const file = req.files.image;
+
+        if (playlist.image_public_id) {
+            await deleteFile(playlist.image_public_id);
+        }
+        const fileUploaded = await uploadFile(file);
+
+        // Guardar datos en DB
+        playlist.image_url = fileUploaded.secure_url;
+        playlist.image_public_id = fileUploaded.public_id;
+        await playlist.save();
+
+        return res.status(200).json({
+            success: true,
+            image_url: playlist.image_url,
+            public_id: playlist.image_public_id,
+        });
+
+    } catch (error) {
+        console.error("Error al subir imagen:", error);
+        return res.status(500).send("Error del servidor");
+    }
+};
+
+
+export const changePlaylistDetails = async (req = request, res = response) => {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const { playlistId } = req.params;
+    const { name, description } = req.body;
+    if (!token) {
+        return res.status(401).send("No se proporcionó token de autenticación");
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.id;
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).send("Usuario no encontrado");
+        }
+
+        const playlist = await Playlist.findByPk(playlistId);
+        if (!playlist) {
+            return res.status(404).send("Playlist no encontrada");
+        }
+
+        if (playlist.userId !== user.id) {
+            return res.status(403).send("No tienes permiso para modificar esta playlist");
+        }
+
+        playlist.name = name || playlist.name;
+        playlist.description = description || playlist.description;
+
+        await playlist.save();
+        res.status(200).json(playlist);
+    } catch (error) {
         console.error(error);
         return res.status(500).send("Error del servidor");
     }

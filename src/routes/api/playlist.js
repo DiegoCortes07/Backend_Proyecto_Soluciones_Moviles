@@ -1,5 +1,5 @@
 import Router from "express";
-import { getUserPlaylists, getPlaylistSongs, postSongToPlaylist, createPlaylist, deletePlaylist, deleteSongFromPlaylist} from "../../controllers/playlistController.js";
+import { getUserPlaylists, getPlaylistSongs, postSongToPlaylist, createPlaylist, deletePlaylist, deleteSongFromPlaylist, uploadPlaylistImage, changePlaylistDetails} from "../../controllers/playlistController.js";
 
 const router = Router();
 
@@ -9,5 +9,7 @@ router.post("/:playlistId/songs", postSongToPlaylist);
 router.post("/", createPlaylist);
 router.delete("/:playlistId", deletePlaylist);
 router.delete("/:playlistId/songs/:songId", deleteSongFromPlaylist);
+router.post("/:playlistId/image", uploadPlaylistImage);
+router.put("/:playlistId", changePlaylistDetails);
 
 export default router;

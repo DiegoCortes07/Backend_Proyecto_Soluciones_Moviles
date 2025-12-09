@@ -10,17 +10,12 @@ cloudinary.v2.config({
     secure: false
 })
 
-export default async function uploadFile(file) {
+export async function uploadFile(file) {
     return await cloudinary.v2.uploader.upload(file.tempFilePath, {
         folder: "music-api",
         public_id: Randomstring.generate(12),
         resource_type: "auto"
-
-
     });
-
-    console.log("FILES =>", req.files);
-    console.log("BODY  =>", req.body);
 }
 
 export async function deleteFile(publicId) {

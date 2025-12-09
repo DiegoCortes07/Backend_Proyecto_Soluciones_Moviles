@@ -1,53 +1,6 @@
 import { request, response } from "express";
 import Song from "../models/song.js";
-import uploadFile from "../config/cloudinary.js";
 import Artist from "../models/artist.js";
-
-export const uploadSong = async (req = request, res = response) => {
-
-    const result = await uploadFile(req.files.song);
-
-    if (!result || !result.public_id || !result.secure_url) {
-        return res.status(500).json({
-            ok: false,
-            msg: "Error uploading file to Cloudinary",
-        });
-    }
-
-    console.log("FILES =>", req.files);
-    console.log("BODY  =>", req.body);
-
-
-    const artist = await Artist.findByPk(req.body.artistId);
-
-    try {
-        const song = await Song.create({
-            title: req.body.title,
-            artistId: req.body.artistId,
-            albumId: req.body.albumId,
-            genre: req.body.genre,
-            year: req.body.year,
-            explicit: req.body.explicit,
-            cloudinaryPublicId: result.public_id,
-            cloudinarySecureUrl: result.secure_url,
-            artistName: artist ? artist.name : null,
-            imageUrl: req.body.imageUrl ? req.body.imageUrl : null,
-        });
-
-        res.status(201).json({
-            ok: true,
-            msg: "Song uploaded successfully",
-            song,
-        });
-
-    } catch (error) {
-        return res.status(500).json({
-            ok: false,
-            msg: "Error creating song",
-            error: error.message,
-        });
-    }
-};
 
 export const getAllSongs = async (req = request, res = response) => {
    console.log("Song importado es:", Song);
