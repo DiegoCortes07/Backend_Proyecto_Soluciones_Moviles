@@ -118,35 +118,6 @@ export const allUsers = async (req = request, res = response) => {
     }
 };
 
-export const getUserPlaylists = async (req = request, res = response) => {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
-
-    if (!token) {
-        return res.status(401).send("No se proporcionó token de autenticación");
-    }
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.id;
-
-        const user = await User.findByPk(userId, { include: "playlists" });
-
-        if (!user) {
-            return res.status(404).send("Usuario no encontrado");
-        }
-
-        if (user.playlists.length === 0) {
-            return res
-                .status(204)
-                .send("No se encontraron playlists para este usuario");
-        }
-
-        res.status(200).json(user.playlists);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send("Error del servidor");
-    }
-};
-
 export const getUserProfile = async (req = request, res = response) => {
     const token = req.header("Authorization")?.replace("Bearer ", "");
 
@@ -192,9 +163,11 @@ export const likedSongs = async (req = request, res = response) => {
             return res.status(204).send("No se encontraron canciones favoritas para este usuario");
         }
 
-        const songs = await Promise.all(likes.map(async (like) => {
+        const enabledLikes = likes.filter(like => like.enabled);
+
+        const songs = await Promise.all(enabledLikes.map(async (like) => {
             return await Song.findByPk(like.songId);
-        }));    
+        }));
 
         res.status(200).json(songs);
     } catch (error) {
@@ -221,17 +194,33 @@ export const likeSong = async (req = request, res = response) => {
             return res.status(404).send("Canción no encontrada");
         }
 
-        // si la cancion ya se encuentra en favoritos
         const existingLike = await Like.findOne({ where: { userId: user.id, songId: song.id } });
 
         if (existingLike) {
-            return res.status(400).send("La canción ya está marcada como favorita");
+            await toggleLike(user.id, song.id);
+        } else {
+            await Like.create({ userId: user.id, songId: song.id });
         }
-        await Like.create({ userId: user.id, songId: song.id });
-
         res.status(200).send("Canción marcada como favorita");
     } catch (error) {
         console.error(error);
         return res.status(500).send("Error del servidor");
+    }
+};
+
+const toggleLike = async (userId, songId) => {
+    try {
+        // deshabilitar el like existente
+        const like = await Like.findOne({ where: { userId, songId } });
+        if (like) {
+            like.enabled = !like.enabled;
+            await like.save();
+            return like.enabled ? "Like habilitado" : "Like deshabilitado";
+        } else {
+            return "No se encontró el like para alternar";
+        }
+    } catch (error) {
+        console.error(error);
+        return "Error al alternar el like";
     }
 };
