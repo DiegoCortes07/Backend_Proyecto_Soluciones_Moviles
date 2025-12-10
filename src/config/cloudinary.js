@@ -10,7 +10,7 @@ cloudinary.v2.config({
     secure: false
 })
 
-export default async function uploadFile(file) {
+export async function uploadMusicFile(file) {
     return await cloudinary.v2.uploader.upload(file.tempFilePath, {
         folder: "music-api",
         public_id: Randomstring.generate(12),
@@ -22,9 +22,26 @@ export default async function uploadFile(file) {
     console.log("FILES =>", req.files);
     console.log("BODY  =>", req.body);
 }
+export const uploadImageFile = (buffer) => {
+    return new Promise((resolve, reject) => {
+        cloudinary.v2.uploader
+          .upload_stream(
+            { folder: 'images' },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              }
+
+              resolve(result);
+            },
+          )
+          .end(buffer);
+      });
+} 
+
 
 export async function deleteFile(publicId) {
     return await cloudinary.v2.uploader.destroy(publicId, {
-        resource_type: "auto"
+        resource_type: "image"
     });
 }
