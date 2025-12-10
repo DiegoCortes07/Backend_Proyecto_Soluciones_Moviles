@@ -16,22 +16,21 @@ import * as seedUser from "./database/seeders/20251117161952-user.js";
 
 class Server {
   constructor() {
-    console.log(process.env.MAIL_PORT)
+
     this.app = express();
     this.port = process.env.PORT || 3000;
     this.server = http.createServer(this.app);
 
-    this.middlewares();
-
-    this.app.use(fileUpload({
-      useTempFiles: true,
-      tempFileDir: './src/tmp',
-      createParentPath: true
-    }));
-
+    
+    // this.app.use(fileUpload({
+    //   useTempFiles: true,
+    //   tempFileDir: './src/tmp',
+    //   createParentPath: true
+    // }));
+    
     this.app.use(express.urlencoded({ extended: true }));
-
     this.connectDB();
+    this.middlewares();
     this.routes();
   }
 
@@ -47,7 +46,7 @@ class Server {
 
     await db.sequelize.sync({ alter: false });
     console.log("All models were synchronized successfully.");
-
+    
     this.seeders();
   }
 
@@ -66,7 +65,6 @@ class Server {
       console.log(`Server is running on port ${this.port}`);
     });
   }
-
   async seeders() {
     await seedArtist.up(db.sequelize.getQueryInterface(), db.Sequelize);
     await seedAlbum.up(db.sequelize.getQueryInterface(), db.Sequelize);

@@ -7,6 +7,10 @@ import Like from "../models/like.js";
 import { enviarCorreo } from "../mail/mailsystem.js";
 import fs from "fs";
 import path from "path";
+import {uploadImageFile, deleteFile} from "../config/cloudinary.js";
+
+const templatePath = path.resolve("src/mail/template/confirmMail.html");
+let html = fs.readFileSync(templatePath, "utf8");
 
 const generateToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -14,9 +18,29 @@ const generateToken = (userId) => {
     });
 };
 
+const generateEmailToken = (email) =>{
+    return jwt.sign({ id: email }, process.env.JWT_SECRET, {
+        expiresIn: '40m',
+    });
+};
+const createMail = async (email, username, id) =>{
+        let newEmail = email + "||";
+        if(id){
+            newEmail += `${id}`; 
+        }
+        const emailToken = generateEmailToken(newEmail);
+        const frontUrl = `${process.env.API_URL}verify-mail?token=${emailToken}`;
+        console.log(username)
+        html = html
+            .replace(/{{USER_NAME}}/g, username)
+            .replace(/{{VERIFICATION_URL}}/g, frontUrl)
+            .replace(/{{APP_NAME}}/g, "Tunesly")
+            .replace(/{{YEAR}}/g, new Date().getFullYear());
+        console.log(email);
+        console.log(frontUrl);
+        await enviarCorreo(email, "Confirmacion de Email",html);
+}
 
-const templatePath = path.resolve("src/mail/template/confirmMail.html");
-let html = fs.readFileSync(templatePath, "utf8");
 
 export const register = async (req = request, res = response) => {
     const { username, email, password } = req.body;
@@ -49,8 +73,7 @@ export const register = async (req = request, res = response) => {
             password: hashedPassword,
         });
 
-        // Generar el token de autenticación
-        const token = generateToken(newUser.id);
+        createMail(email,username);
 
         // Responder con el usuario y el token
         return res.status(201).json({
@@ -63,8 +86,7 @@ export const register = async (req = request, res = response) => {
                 language: newUser.language,
                 theme: newUser.theme,
                 explicitContent: newUser.explicitContent,
-                token,
-            },
+            }
         });
     } catch (error) {
         console.error("Error al registrar usuario:", error);
@@ -94,16 +116,11 @@ export const login = async (req = request, res = response) => {
             return res.status(401).send("Credenciales inválidas");
         }
 
+        if(!user.enabled){
+             return res.status(401).send({blocked:true,msg:"La cuenta esta inhabilitada"});
+        }
+
         const token = generateToken(user.id);
-        
-
-        html = html
-            .replace(/{{USER_NAME}}/g, user.username)
-            .replace(/{{VERIFICATION_URL}}/g, "aa")
-            .replace(/{{APP_NAME}}/g, "Tunesly")
-            .replace(/{{YEAR}}/g, new Date().getFullYear());
-
-        await enviarCorreo(email, "confirmacion",html);
 
         res.status(200).json({
             user: {
@@ -113,6 +130,36 @@ export const login = async (req = request, res = response) => {
                 token,
             },
         });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send("Error del servidor");
+    }
+};
+
+export const getUser = async (req = request, res = response) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+        return res.status(401).send("No se proporcionó token de autenticación");
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.id;
+
+        const user = await User.findByPk(userId, { include: 'playlists' });
+
+        if (!user) {
+            return res.status(404).send("Usuario no encontrado");
+        }
+
+        return res.status(200).json({
+            user: {
+                profile: user.profilePhoto,
+                name: user.username,
+                email: user.email,
+            }
+        });
+
+
     } catch (error) {
         console.error(error);
         return res.status(500).send("Error del servidor");
@@ -224,6 +271,89 @@ export const likeSong = async (req = request, res = response) => {
     }
 };
 
+export const validateEmail = async (req = request, res = response) => {
+    const {token} = req.body
+
+    try{
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const email = decoded.id.split("||");
+        if(email[1]){
+            const userExist = await User.findByPk(email[1]);
+            if(!userExist){
+                return res.status(404).send("Usuario no encontrado");
+            }
+            userExist.email = email[0];
+            await userExist.save();
+            res.status(200).json({msg: "Email verificado y activo actualmente"});
+        }
+        else{
+            const emailExist = await User.findOne({where: {email:email}});
+            if(!emailExist){
+                return res.status(404).send("Usuario no encontrado");
+            }
+            emailExist.enabled = true;
+            await emailExist.save();
+            res.status(200).json({msg: "Email verificado"});
+        }
+
+
+    }catch(error){
+        console.error(error);
+        return res.status(500).send("Error del servidor");
+    }
+};
+
+export const updateUser = async (req = request, res = response) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    const {username,email} = req.body;
+
+    if (!token) {
+        return res.status(401).send("No se proporcionó token de autenticación");
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.id;
+
+        const user = await User.findByPk(userId);
+
+        if (!user) {
+            return res.status(404).send("Usuario no encontrado");
+        }
+        if(username){
+            user.username = username;
+        }
+        if(email){
+            createMail(email,user.username,userId);
+        }
+        if(req.file){
+
+            const result =  await uploadImageFile(req.file.buffer);
+
+            const oldPhoto = user.profilePhoto;
+            user.profilePhoto = result.url;
+
+            // Para eliminar la foto vieja del usuario
+            if (oldPhoto) {
+                const filteredID = oldPhoto.replace("ttp://res.cloudinary.com/dkmjphwj3/image/upload/","").replace(".png",""); 
+                const delResult = await deleteFile(filteredID.replace(filteredID.split("image")[0],""))
+                if(delResult.result!= "ok"){
+                    console.error("No se pudo reemplazar la imagen anterior.");
+                }else{
+                    console.error("La imagen fue reemplazada.");
+                }
+            }
+        }
+
+        await user.save();
+
+        res.status(200).json({msg: "Datos Actualizados"});
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send("Error del servidor");
+    }
+
+}
 const toggleLike = async (userId, songId) => {
     try {
         // deshabilitar el like existente
