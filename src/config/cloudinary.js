@@ -15,12 +15,7 @@ export async function uploadMusicFile(file) {
         folder: "music-api",
         public_id: Randomstring.generate(12),
         resource_type: "auto"
-
-
     });
-
-    console.log("FILES =>", req.files);
-    console.log("BODY  =>", req.body);
 }
 export const uploadImageFile = (buffer) => {
     return new Promise((resolve, reject) => {
