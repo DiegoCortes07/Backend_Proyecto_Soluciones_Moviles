@@ -21,6 +21,10 @@ Like.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    }
   },
   {
     sequelize: db,

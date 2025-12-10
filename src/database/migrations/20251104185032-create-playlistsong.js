@@ -37,6 +37,10 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.NOW,
       },
+      enabled:{
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
+      }
     });
   },
 

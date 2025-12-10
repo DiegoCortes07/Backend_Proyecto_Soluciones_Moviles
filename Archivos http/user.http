@@ -22,3 +22,16 @@ Content-Type: application/json
 
 GET http://localhost:8080/api/users/playlists
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzYyNzE3MTc2LCJleHAiOjE3NjMzMjE5NzZ9.OOsqsbhaFlG1Yat_hk-OH27yE5WTqil7nUZjkuNl-RY
+###
+
+GET http://localhost:8080/api/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzY0NjgzNjU1LCJleHAiOjE3NjUyODg0NTV9.r3JB59gVIowZxk4YOonyqGwzIFUshytAkdXYNlSK6Ds
+
+###
+
+get http://localhost:8080/api/users/liked-songs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzY0OTU2NDk4LCJleHAiOjE3NjU1NjEyOTh9.46XvWwTIhy3_WiT-s19dG8VLmYLCACplkm29v1ORt4s
+###
+
+post http://localhost:8080/api/users/like-song/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzY0OTU2NDk4LCJleHAiOjE3NjU1NjEyOTh9.46XvWwTIhy3_WiT-s19dG8VLmYLCACplkm29v1ORt4s

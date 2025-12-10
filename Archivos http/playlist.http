@@ -1,0 +1,32 @@
+// obtener todas las playlist del usuario
+get http://localhost:8080/api/playlists/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzY1MDUwMzIwLCJleHAiOjE3NjU2NTUxMjB9.68Q7iUXQdSPjMHtjX9tJaI6rFumBS2XAXUO9zEMyomU
+###
+get http://localhost:8080/api/playlists/1/songs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzY1MDUwMzIwLCJleHAiOjE3NjU2NTUxMjB9.68Q7iUXQdSPjMHtjX9tJaI6rFumBS2XAXUO9zEMyomU
+###
+post http://localhost:8080/api/playlists/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzY1MDUwMzIwLCJleHAiOjE3NjU2NTUxMjB9.68Q7iUXQdSPjMHtjX9tJaI6rFumBS2XAXUO9zEMyomU
+Content-Type: application/json
+
+{
+    "name": "My New Playlist",
+    "description": "A collection of my favorite songs"
+}
+
+###
+post http://localhost:8080/api/playlists/1/songs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzY1MDUwMzIwLCJleHAiOjE3NjU2NTUxMjB9.68Q7iUXQdSPjMHtjX9tJaI6rFumBS2XAXUO9zEMyomU
+Content-Type: application/json
+
+{
+    "songId": 5
+}
+
+###
+delete http://localhost:8080/api/playlists/1/songs/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzY1MTQ0NTQ0LCJleHAiOjE3NjU3NDkzNDR9.i1E5Yox6mpWNJJCEI7s6mFQs_CE4wrhqdnN-LkxkExM
+
+###
+delete http://localhost:8080/api/playlists/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzY1MTQ0NTQ0LCJleHAiOjE3NjU3NDkzNDR9.i1E5Yox6mpWNJJCEI7s6mFQs_CE4wrhqdnN-LkxkExM
