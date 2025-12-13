@@ -32,6 +32,22 @@ export const uploadImageFile = (buffer) => {
           )
           .end(buffer);
       });
+}
+export const uploadCoverFile = (buffer) => {
+    return new Promise((resolve, reject) => {
+        cloudinary.v2.uploader
+          .upload_stream(
+            { folder: 'images-Covers' },
+            (error, result) => {
+              if (error) {
+                reject(error);
+              }
+
+              resolve(result);
+            },
+          )
+          .end(buffer);
+      });
 } 
 
 

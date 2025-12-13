@@ -136,36 +136,6 @@ export const login = async (req = request, res = response) => {
     }
 };
 
-export const getUser = async (req = request, res = response) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    if (!token) {
-        return res.status(401).send("No se proporcionó token de autenticación");
-    }
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.id;
-
-        const user = await User.findByPk(userId, { include: 'playlists' });
-
-        if (!user) {
-            return res.status(404).send("Usuario no encontrado");
-        }
-
-        return res.status(200).json({
-            user: {
-                profile: user.profilePhoto,
-                name: user.username,
-                email: user.email,
-            }
-        });
-
-
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send("Error del servidor");
-    }
-};
-
 export const allUsers = async (req = request, res = response) => {
     try {
         const users = await User.findAll({ attributes: { exclude: ["password"] } });
@@ -305,12 +275,13 @@ export const validateEmail = async (req = request, res = response) => {
 
 export const updateUser = async (req = request, res = response) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
-    const {username,email} = req.body;
+    const {username,alias,email} = req.body;
 
     if (!token) {
         return res.status(401).send("No se proporcionó token de autenticación");
     }
     try {
+        console.log(req.file)
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.id;
 
@@ -321,6 +292,9 @@ export const updateUser = async (req = request, res = response) => {
         }
         if(username){
             user.username = username;
+        }
+        if(alias){
+            user.alias = alias;
         }
         if(email){
             createMail(email,user.username,userId);

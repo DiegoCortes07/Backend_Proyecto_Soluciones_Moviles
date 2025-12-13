@@ -25,6 +25,10 @@ User.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
+        alias: {
+            type: DataTypes.STRING,
+            allowNull:true
+        },
         email: {
             type: DataTypes.STRING,
             allowNull: false,
