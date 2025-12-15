@@ -1,5 +1,5 @@
 import Router from "express";
-import { register , login , allUsers, validateEmail, updateUser, getUserProfile, likedSongs, likeSong} from "../../controllers/userController.js";
+import { register , login , allUsers, validateEmail, updateUser, getUserProfile, likedSongs, likeSong, updatePassword} from "../../controllers/userController.js";
 import multer from "multer";
 
 const router = Router();
@@ -13,6 +13,7 @@ router.post('/login', login);
 router.get('/all', allUsers);
 router.post('/verifmail',validateEmail)
 router.put("/updateprofile", upload.single("image"), updateUser);
+router.post("/updatepass",updatePassword);
 router.get('/me', getUserProfile);
 router.get('/liked-songs', likedSongs);
 router.post('/like-song/:songId', likeSong);

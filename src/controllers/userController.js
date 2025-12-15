@@ -328,6 +328,38 @@ export const updateUser = async (req = request, res = response) => {
     }
 
 }
+export const updatePassword = async (req = request, res = response) => {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    const {password, newpass} = req.body;
+
+    if (!token) {
+        return res.status(401).send("No se proporcionó token de autenticación");
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.id;
+
+        const user = await User.findByPk(userId);
+
+        if (!user) {
+            return res.status(404).send("Usuario no encontrado");
+        }
+        //validaciones de seguridad
+        const isPasswordValid = bcrypt.compareSync(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).send("Contraseña inválida");
+        }
+        
+        const hashedPassword = bcrypt.hashSync(newpass, 10);
+        user.password = hashedPassword;
+        await user.save();
+        res.status(200).json({username: user.username,msg: "Contraseña Actualizados"});
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send("Error del servidor");
+    }
+}
 const toggleLike = async (userId, songId) => {
     try {
         // deshabilitar el like existente
