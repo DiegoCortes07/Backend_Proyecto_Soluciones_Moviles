@@ -7,7 +7,8 @@ class Album extends Model {
   static title
   static year
   static image
-  static genre}
+  static genre
+}
 
 Album.init(
   {
@@ -38,6 +39,11 @@ Album.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    isPodcast: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    }
   },
   {
     sequelize: db,

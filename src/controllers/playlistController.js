@@ -234,9 +234,8 @@ export const uploadPlaylistImage = async (req = request, res = response) => {
         if (playlist.userId !== user.id) {
             return res.status(403).send("No tienes permiso para modificar esta playlist");
         }
-
-
-        if (!req.files || !req.files.image) {
+        console.log("Archivos recibidos:", req.files);
+        if (!req.files) {
             return res.status(400).send("No se proporcionó ninguna imagen");
         }
 
@@ -255,7 +254,6 @@ export const uploadPlaylistImage = async (req = request, res = response) => {
         return res.status(200).json({
             success: true,
             image_url: playlist.image_url,
-            public_id: playlist.image_public_id,
         });
 
     } catch (error) {
@@ -263,7 +261,6 @@ export const uploadPlaylistImage = async (req = request, res = response) => {
         return res.status(500).send("Error del servidor");
     }
 };
-
 
 export const changePlaylistDetails = async (req = request, res = response) => {
     const token = req.header("Authorization")?.replace("Bearer ", "");

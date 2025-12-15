@@ -10,7 +10,7 @@ export const createAlbumForArtist = async (req = request, res = response) => {
         if (!artist) {
             return res.status(404).send("Artista no encontrado");
         }
-        
+
         const newAlbum = await Album.create({
             title,
             year,
@@ -27,14 +27,14 @@ export const createAlbumForArtist = async (req = request, res = response) => {
 
 export const getAllAlbums = async (req = request, res = response) => {
     try {
-        const albums = await Album.findAll();
-        if(albums.length === 0){
+        const albums = await Album.findAll({ where: { isPodcast: false } });
+        if (albums.length === 0) {
             return res.status(404).send("No se encontraron álbumes");
         }
         return res.status(200).json(albums);
     } catch (error) {
-        return res.status(500).send("Error al obtener los álbumes");
-    }   
+        return res.status(500).send("Error al obtener rlos álbumes");
+    }
 };
 
 export const getAlbumById = async (req = request, res = response) => {
@@ -47,7 +47,7 @@ export const getAlbumById = async (req = request, res = response) => {
         return res.status(200).json(album);
     } catch (error) {
         return res.status(500).send("Error al obtener el álbum");
-    }   
+    }
 };
 
 export const getSongsForAlbum = async (req = request, res = response) => {

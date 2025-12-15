@@ -224,3 +224,32 @@ const toggleLike = async (userId, songId) => {
         return "Error al alternar el like";
     }
 };
+
+export const changeConfig = async (req = request, res = response) => {
+    try {
+        const user = await User.findByPk(req.body.userId);
+        if (!user) {
+            return "Usuario no encontrado";
+        }
+        const configUpdates = req.body.configUpdates;
+
+        if (configUpdates.language !== undefined) {
+            user.language = configUpdates.language;
+        }
+
+        if (configUpdates.theme !== undefined) {
+            user.theme = configUpdates.theme;
+        }
+
+        if (configUpdates.explicitContent !== undefined) {
+            user.explicitContent = configUpdates.explicitContent;
+        }
+
+        await user.save();
+        return res.status(200).send("Configuración actualizada correctamente");
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).send("Error al actualizar la configuración");
+    }
+};

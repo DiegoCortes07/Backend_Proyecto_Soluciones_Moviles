@@ -32,9 +32,15 @@ module.exports = {
         allowNull: true,
       }
       ,
+      isPodcast: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      }
+      ,
       artistId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'artist',
           key: 'id',

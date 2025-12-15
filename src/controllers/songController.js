@@ -5,7 +5,7 @@ import Artist from "../models/artist.js";
 export const getAllSongs = async (req = request, res = response) => {
    console.log("Song importado es:", Song);
     try {
-        const songs = await Song.findAll();
+        const songs = await Song.findAll({ where: { enabled: true, isPodcast: false } });
         return res.status(200).json(songs);
     }
     catch (error) {

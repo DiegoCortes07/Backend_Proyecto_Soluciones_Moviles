@@ -21,15 +21,6 @@ class Server {
     this.server = http.createServer(this.app);
 
     this.middlewares();
-
-    this.app.use(fileUpload({
-      useTempFiles: true,
-      tempFileDir: './src/tmp',
-      createParentPath: true
-    }));
-
-    this.app.use(express.urlencoded({ extended: true }));
-
     this.connectDB();
     this.routes();
   }
@@ -49,9 +40,15 @@ class Server {
   }
 
   middlewares() {
-    this.app.use(express.json());
     this.app.use(morgan("dev"));
     this.app.use(cors());
+    this.app.use(fileUpload({
+      useTempFiles: true,
+      tempFileDir: './src/tmp',
+      createParentPath: true,
+    }));
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
   }
 
   routes() {
@@ -61,6 +58,9 @@ class Server {
   listen() {
     this.server.listen(this.port,'0.0.0.0', () => {
       console.log(`Server is running on port ${this.port}`);
+      // obtener la dirección IP local
+      
+      console.log(`Access it at http://0.0.0.0:${this.port}`);
     });
   }
 

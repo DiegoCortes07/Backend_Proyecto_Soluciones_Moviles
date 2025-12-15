@@ -1,0 +1,7 @@
+get http://localhost:8080/api/podcasts/
+
+###
+get http://localhost:8080/api/podcasts/getAllShows
+
+###
+get http://localhost:8080/api/podcasts/getShowsForPodcastId/8
