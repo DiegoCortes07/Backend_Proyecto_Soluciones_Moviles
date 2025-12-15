@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verificación de correo</title>
+</head>
+
+<body style="margin:0; padding:0; background-color:#f4f4f7; font-family:Arial, sans-serif;">
+  <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
+    <tr>
+      <td style="padding:20px 0; text-align:center;">
+        <h1 style="margin:0; font-size:24px; color:#333;">{{APP_NAME}}</h1>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="background:#ffffff; padding:30px; border-radius:8px;">
+        <h2 style="color:#333; margin-top:0;">Hola {{USER_NAME}},</h2>
+        <p style="color:#555; font-size:16px; line-height:1.5;">
+          Gracias por registrarte. Antes de continuar, necesitamos confirmar que esta dirección de correo te pertenece.
+        </p>
+
+        <p style="text-align:center; margin:30px 0;">
+          <a href="{{ VERIFICATION_UR }}"
+             style="background:#4F46E5; color:#fff; padding:14px 28px; text-decoration:none; font-size:16px; border-radius:6px; display:inline-block;">
+            Verificar correo
+          </a>
+        </p>
+
+        <p style="color:#555; font-size:14px; line-height:1.5;">
+          Si el botón no funciona, copia y pega este enlace en tu navegador:
+        </p>
+
+        <p style="word-wrap:break-word; font-size:14px; color:#4F46E5;">
+          {{VERIFICATION_URL}}
+        </p>
+
+        <p style="color:#777; font-size:14px;">Si no creaste una cuenta, puedes ignorar este mensaje.</p>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="text-align:center; padding:20px; color:#999; font-size:12px;">
+        © {{YEAR}} {{APP_NAME}} — Todos los derechos reservados.
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

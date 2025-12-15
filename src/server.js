@@ -16,6 +16,7 @@ import * as seedUser from "./database/seeders/20251117161952-user.js";
 
 class Server {
   constructor() {
+    console.log(process.env.MAIL_PORT)
     this.app = express();
     this.port = process.env.PORT || 3000;
     this.server = http.createServer(this.app);
@@ -26,6 +27,8 @@ class Server {
   }
 
   async connectDB() {
+
+
     try {
       await db.sequelize.authenticate();
       console.log("Connection has been established successfully.");
