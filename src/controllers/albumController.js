@@ -1,21 +1,29 @@
 import { request, response } from "express";
 import Artist from "../models/artist.js";
 import Album from "../models/album.js";
+import { uploadFile } from "../config/cloudinary.js";
 
 export const createAlbumForArtist = async (req = request, res = response) => {
     const { artistId } = req.params;
-    const { title, year, genre, image } = req.body;
+    const { title, year, genre } = req.body;
     try {
         const artist = await Artist.findByPk(artistId);
         if (!artist) {
             return res.status(404).send("Artista no encontrado");
         }
 
+        let imageUrl = null;
+        // Si llega archivo de imagen vía express-fileupload, subirlo a Cloudinary
+        if (req.files && req.files.image) {
+            const uploaded = await uploadFile(req.files.image);
+            imageUrl = uploaded.secure_url;
+        }
+
         const newAlbum = await Album.create({
             title,
             year,
             genre,
-            image,
+            image: imageUrl,
             artistId: artist.id
         });
 

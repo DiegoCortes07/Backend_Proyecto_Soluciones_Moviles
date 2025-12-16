@@ -4,7 +4,7 @@ import Playlist from "../models/playlist.js";
 import PlaylistSong from "../models/playlistSong.js";
 import Song from "../models/song.js";
 import jwt from "jsonwebtoken";
-import { uploadFile, deleteFile } from "../config/cloudinary.js";
+import { uploadFile } from "../config/cloudinary.js";
 
 export const getUserPlaylists = async (req = request, res = response) => {
     const token = req.header("Authorization")?.replace("Bearer ", "");
@@ -240,15 +240,10 @@ export const uploadPlaylistImage = async (req = request, res = response) => {
         }
 
         const file = req.files.image;
-
-        if (playlist.image_public_id) {
-            await deleteFile(playlist.image_public_id);
-        }
         const fileUploaded = await uploadFile(file);
 
-        // Guardar datos en DB
+        // Guardar URL en DB
         playlist.image_url = fileUploaded.secure_url;
-        playlist.image_public_id = fileUploaded.public_id;
         await playlist.save();
 
         return res.status(200).json({

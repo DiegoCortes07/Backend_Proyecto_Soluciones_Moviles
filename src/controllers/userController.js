@@ -7,265 +7,380 @@ import Like from "../models/like.js";
 import { enviarCorreo } from "../mail/mailsystem.js";
 import fs from "fs";
 import path from "path";
+import { uploadFile } from "../config/cloudinary.js";
 
 const generateToken = (userId) => {
-    return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-        expiresIn: "7d",
-    });
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
 };
-
 
 const templatePath = path.resolve("src/mail/template/confirmMail.html");
 let html = fs.readFileSync(templatePath, "utf8");
 
 export const register = async (req = request, res = response) => {
-    const { username, email, password } = req.body;
+  const { username, email, password } = req.body;
 
-    // Validar que no falten campos
-    if (!username || !email || !password) {
-        return res.status(400).json({
-            message:
-                "Faltan campos obligatorios. Asegúrate de completar nombre, correo y contraseña.",
-        });
+  // Validar que no falten campos
+  if (!username || !email || !password) {
+    return res.status(400).json({
+      message:
+        "Faltan campos obligatorios. Asegúrate de completar nombre, correo y contraseña.",
+    });
+  }
+
+  try {
+    // Verificar si ya existe un usuario con el correo proporcionado
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({
+        message:
+          "El correo electrónico ya está en uso. Por favor, usa otro correo.",
+      });
     }
 
-    try {
-        // Verificar si ya existe un usuario con el correo proporcionado
-        const existingUser = await User.findOne({ where: { email } });
-        if (existingUser) {
-            return res.status(409).json({
-                message:
-                    "El correo electrónico ya está en uso. Por favor, usa otro correo.",
-            });
-        }
+    // Hashear la contraseña
+    const hashedPassword = bcrypt.hashSync(password, 10);
 
-        // Hashear la contraseña
-        const hashedPassword = bcrypt.hashSync(password, 10);
+    // Crear un nuevo usuario
+    const newUser = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+    });
 
-        // Crear un nuevo usuario
-        const newUser = await User.create({
-            username,
-            email,
-            password: hashedPassword,
-        });
+    // Generar el token de autenticación
+    const token = generateToken(newUser.id);
 
-        // Generar el token de autenticación
-        const token = generateToken(newUser.id);
-
-        // Responder con el usuario y el token
-        return res.status(201).json({
-            user: {
-                id: newUser.id,
-                username: newUser.username,
-                email: newUser.email,
-                plan: newUser.plan,
-                profilePhoto: newUser.profilePhoto,
-                language: newUser.language,
-                theme: newUser.theme,
-                explicitContent: newUser.explicitContent,
-                token,
-            },
-        });
-    } catch (error) {
-        console.error("Error al registrar usuario:", error);
-        return res.status(500).json({
-            message: "Hubo un error en el servidor. Por favor, intenta más tarde.",
-        });
-    }
+    // Responder con el usuario y el token
+    return res.status(201).json({
+      user: {
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+        plan: newUser.plan,
+        profilePhoto: newUser.profilePhoto,
+        language: newUser.language,
+        theme: newUser.theme,
+        explicitContent: newUser.explicitContent,
+        token,
+      },
+    });
+  } catch (error) {
+    console.error("Error al registrar usuario:", error);
+    return res.status(500).json({
+      message: "Hubo un error en el servidor. Por favor, intenta más tarde.",
+    });
+  }
 };
 
 export const login = async (req = request, res = response) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    if (!email || !password) {
-        return res.status(400).send("Faltan campos obligatorios");
+  if (!email || !password) {
+    return res.status(400).send("Faltan campos obligatorios");
+  }
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).send("Credenciales a inválidas");
     }
 
-    try {
-        const user = await User.findOne({ where: { email } });
-        if (!user) {
-            return res.status(401).send("Credenciales a inválidas");
-        }
+    // si la contraseña no coincide
+    const isPasswordValid = bcrypt.compareSync(password, user.password);
 
-        // si la contraseña no coincide
-        const isPasswordValid = bcrypt.compareSync(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).send("Credenciales inválidas");
+    }
 
-        if (!isPasswordValid) {
-            return res.status(401).send("Credenciales inválidas");
-        }
+    const token = generateToken(user.id);
 
-        const token = generateToken(user.id);
-        
-
-        html = html
+    /*html = html
             .replace(/{{USER_NAME}}/g, user.username)
             .replace(/{{VERIFICATION_URL}}/g, "aa")
             .replace(/{{APP_NAME}}/g, "Tunesly")
             .replace(/{{YEAR}}/g, new Date().getFullYear());
 
         await enviarCorreo(email, "confirmacion",html);
+        */
 
-        res.status(200).json({
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                token,
-            },
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send("Error del servidor");
-    }
+    res.status(200).json({
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        token,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error del servidor");
+  }
 };
 
 export const allUsers = async (req = request, res = response) => {
-    try {
-        const users = await User.findAll({ attributes: { exclude: ["password"] } });
+  try {
+    const users = await User.findAll({ attributes: { exclude: ["password"] } });
 
-        if (users.length === 0) {
-            return res.status(404).send("No se encontraron usuarios");
-        }
-
-        res.status(200).json(users);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send("Error del servidor");
+    if (users.length === 0) {
+      return res.status(404).send("No se encontraron usuarios");
     }
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error del servidor");
+  }
 };
 
 export const getUserProfile = async (req = request, res = response) => {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+  const token = req.header("Authorization")?.replace("Bearer ", "");
 
-    if (!token) {
-        return res.status(401).send("No se proporcionó token de autenticación");
-    }
-    console.log("Token recibido:", token);
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.id;
-        const user = await User.findByPk(userId, {
-            attributes: { exclude: ["password"] },
-        });
+  if (!token) {
+    return res.status(401).send("No se proporcionó token de autenticación");
+  }
+  console.log("Token recibido:", token);
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+    const user = await User.findByPk(userId, {
+      attributes: { exclude: ["password"] },
+    });
 
-        if (!user) {
-            return res.status(404).send("Usuario no encontrado");
-        }
-        res.status(200).json(user);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send("Error del servidor");
+    if (!user) {
+      return res.status(404).send("Usuario no encontrado");
     }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error del servidor");
+  }
 };
 
 export const likedSongs = async (req = request, res = response) => {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+  const token = req.header("Authorization")?.replace("Bearer ", "");
 
-    if (!token) {
-        return res.status(401).send("No se proporcionó token de autenticación");
+  if (!token) {
+    return res.status(401).send("No se proporcionó token de autenticación");
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).send("Usuario no encontrado");
     }
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.id;
-        const user = await User.findByPk(userId);
 
-        if (!user) {
-            return res.status(404).send("Usuario no encontrado");
-        }
+    const likes = await user.getLikes();
 
-        const likes = await user.getLikes();
-
-        if (likes.length === 0) {
-            return res.status(204).send("No se encontraron canciones favoritas para este usuario");
-        }
-
-        const enabledLikes = likes.filter(like => like.enabled);
-
-        const songs = await Promise.all(enabledLikes.map(async (like) => {
-            return await Song.findByPk(like.songId);
-        }));
-
-        res.status(200).json(songs);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send("Error del servidor");
+    if (likes.length === 0) {
+      return res
+        .status(204)
+        .send("No se encontraron canciones favoritas para este usuario");
     }
+
+    const enabledLikes = likes.filter((like) => like.enabled);
+
+    const songs = await Promise.all(
+      enabledLikes.map(async (like) => {
+        return await Song.findByPk(like.songId);
+      })
+    );
+
+    res.status(200).json(songs);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error del servidor");
+  }
 };
 
 export const likeSong = async (req = request, res = response) => {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
-    const { songId } = req.params;
-    if (!token) {
-        return res.status(401).send("No se proporcionó token de autenticación");
+  const token = req.header("Authorization")?.replace("Bearer ", "");
+  const { songId } = req.params;
+  if (!token) {
+    return res.status(401).send("No se proporcionó token de autenticación");
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).send("Usuario no encontrado");
     }
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.id;
-        const user = await User.findByPk(userId);
-        if (!user) {
-            return res.status(404).send("Usuario no encontrado");
-        }
-        const song = await Song.findByPk(songId);
-        if (!song) {
-            return res.status(404).send("Canción no encontrada");
-        }
-
-        const existingLike = await Like.findOne({ where: { userId: user.id, songId: song.id } });
-
-        if (existingLike) {
-            await toggleLike(user.id, song.id);
-        } else {
-            await Like.create({ userId: user.id, songId: song.id });
-        }
-        res.status(200).send("Canción marcada como favorita");
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send("Error del servidor");
+    const song = await Song.findByPk(songId);
+    if (!song) {
+      return res.status(404).send("Canción no encontrada");
     }
+
+    const existingLike = await Like.findOne({
+      where: { userId: user.id, songId: song.id },
+    });
+
+    if (existingLike) {
+      await toggleLike(user.id, song.id);
+    } else {
+      await Like.create({ userId: user.id, songId: song.id });
+    }
+    res.status(200).send("Canción marcada como favorita");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error del servidor");
+  }
 };
 
 const toggleLike = async (userId, songId) => {
-    try {
-        // deshabilitar el like existente
-        const like = await Like.findOne({ where: { userId, songId } });
-        if (like) {
-            like.enabled = !like.enabled;
-            await like.save();
-            return like.enabled ? "Like habilitado" : "Like deshabilitado";
-        } else {
-            return "No se encontró el like para alternar";
-        }
-    } catch (error) {
-        console.error(error);
-        return "Error al alternar el like";
+  try {
+    // deshabilitar el like existente
+    const like = await Like.findOne({ where: { userId, songId } });
+    if (like) {
+      like.enabled = !like.enabled;
+      await like.save();
+      return like.enabled ? "Like habilitado" : "Like deshabilitado";
+    } else {
+      return "No se encontró el like para alternar";
     }
+  } catch (error) {
+    console.error(error);
+    return "Error al alternar el like";
+  }
 };
 
 export const changeConfig = async (req = request, res = response) => {
-    try {
-        const user = await User.findByPk(req.body.userId);
-        if (!user) {
-            return "Usuario no encontrado";
-        }
-        const configUpdates = req.body.configUpdates;
-
-        if (configUpdates.language !== undefined) {
-            user.language = configUpdates.language;
-        }
-
-        if (configUpdates.theme !== undefined) {
-            user.theme = configUpdates.theme;
-        }
-
-        if (configUpdates.explicitContent !== undefined) {
-            user.explicitContent = configUpdates.explicitContent;
-        }
-
-        await user.save();
-        return res.status(200).send("Configuración actualizada correctamente");
+  try {
+    const user = await User.findByPk(req.body.userId);
+    if (!user) {
+      return "Usuario no encontrado";
     }
-    catch (error) {
-        console.error(error);
-        return res.status(500).send("Error al actualizar la configuración");
+    const configUpdates = req.body.configUpdates;
+
+    if (configUpdates.language !== undefined) {
+      user.language = configUpdates.language;
     }
+
+    if (configUpdates.theme !== undefined) {
+      user.theme = configUpdates.theme;
+    }
+
+    if (configUpdates.explicitContent !== undefined) {
+      user.explicitContent = configUpdates.explicitContent;
+    }
+
+    if (configUpdates.plan !== undefined) {
+      user.plan = configUpdates.plan;
+    }
+
+    await user.save();
+    return res.status(200).send("Configuración actualizada correctamente");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error al actualizar la configuración");
+  }
+};
+
+export const changePassword = async (req = request, res = response) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const { newPassword } = req.body;
+    if (!token) {
+      return res.status(401).send("No se proporcionó token de autenticación");
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).send("Usuario no encontrado");
+    }
+
+    const hashedPassword = bcrypt.hashSync(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+    return res.status(200).send("Contraseña actualizada correctamente");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error al actualizar la contraseña");
+  }
+};
+
+export const changeProfilePhoto = async (req = request, res = response) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    if (!token) {
+      return res.status(401).send("No se proporcionó token de autenticación");
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).send("Usuario no encontrado");
+    }
+
+    // Detectar imagen desde distintas claves o como base64/URL
+    let file = null;
+    if (req.files) {
+      file = req.files.image || req.files.file || req.files.photo;
+      // Si es array (múltiples archivos), tomar el primero
+      if (Array.isArray(file)) file = file[0];
+    }
+
+    // Si no hay archivo, intentar con cuerpo (data URI/base64 o URL)
+    let uploaded = null;
+    if (file && file.tempFilePath) {
+      uploaded = await uploadFile(file);
+    } else if (req.body && req.body.image) {
+      // Permitir subir string (data URI o URL)
+      uploaded = await cloudinary.v2.uploader.upload(req.body.image, {
+        folder: "music-api",
+        resource_type: "image",
+      });
+    } else {
+      return res.status(400).send("No se proporcionó ninguna imagen");
+    }
+
+    // Guardar URL segura en el usuario
+    user.profilePhoto = uploaded.secure_url;
+    await user.save();
+
+    return res.status(200).json({
+      message: "Foto de perfil actualizada correctamente",
+      profilePhoto: user.profilePhoto,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error al actualizar la foto de perfil");
+  }
+};
+
+export const changeUserData = async (req = request, res = response) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const { newUsername, newEmail } = req.body;
+    if (!token) {
+      return res.status(401).send("No se proporcionó token de autenticación");
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).send("Usuario no encontrado");
+    }
+
+    console.log("Nuevos datos recibidos:", { newUsername, newEmail });
+
+    if (newUsername) {
+      user.username = newUsername;
+    }
+
+    if (newEmail) {
+      user.email = newEmail;
+    }
+
+    await user.save();
+    return res.status(200).send("Datos de usuario actualizados correctamente");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error al actualizar los datos de usuario");
+  }
 };
