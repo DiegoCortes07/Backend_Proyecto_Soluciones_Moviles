@@ -1,21 +1,29 @@
 import { request, response } from "express";
 import Artist from "../models/artist.js";
 import Album from "../models/album.js";
+import { uploadFile } from "../config/cloudinary.js";
 
 export const createAlbumForArtist = async (req = request, res = response) => {
     const { artistId } = req.params;
-    const { title, year, genre, image } = req.body;
+    const { title, year, genre } = req.body;
     try {
         const artist = await Artist.findByPk(artistId);
         if (!artist) {
             return res.status(404).send("Artista no encontrado");
         }
-        
+
+        let imageUrl = null;
+        // Si llega archivo de imagen vía express-fileupload, subirlo a Cloudinary
+        if (req.files && req.files.image) {
+            const uploaded = await uploadFile(req.files.image);
+            imageUrl = uploaded.secure_url;
+        }
+
         const newAlbum = await Album.create({
             title,
             year,
             genre,
-            image,
+            image: imageUrl,
             artistId: artist.id
         });
 
@@ -27,14 +35,14 @@ export const createAlbumForArtist = async (req = request, res = response) => {
 
 export const getAllAlbums = async (req = request, res = response) => {
     try {
-        const albums = await Album.findAll();
-        if(albums.length === 0){
+        const albums = await Album.findAll({ where: { isPodcast: false } });
+        if (albums.length === 0) {
             return res.status(404).send("No se encontraron álbumes");
         }
         return res.status(200).json(albums);
     } catch (error) {
-        return res.status(500).send("Error al obtener los álbumes");
-    }   
+        return res.status(500).send("Error al obtener rlos álbumes");
+    }
 };
 
 export const getAlbumById = async (req = request, res = response) => {
@@ -47,7 +55,7 @@ export const getAlbumById = async (req = request, res = response) => {
         return res.status(200).json(album);
     } catch (error) {
         return res.status(500).send("Error al obtener el álbum");
-    }   
+    }
 };
 
 export const getSongsForAlbum = async (req = request, res = response) => {

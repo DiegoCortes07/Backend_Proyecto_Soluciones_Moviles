@@ -21,6 +21,7 @@ export async function up(queryInterface, Sequelize) {
       genre: "Rock",
       artistId: 1,
       artistName: "The Beatles",
+      isPodcast : false,
     },
     {
       title: "YHLQMDLG",
@@ -29,6 +30,7 @@ export async function up(queryInterface, Sequelize) {
       genre: "Reguetón",
       artistId: 2,
       artistName: "bad bunny",
+      isPodcast : false,
     },
     {
       title: "Lyke Myke",
@@ -37,6 +39,7 @@ export async function up(queryInterface, Sequelize) {
       genre: "Música Urbana",
       artistId: 3,
       artistName: "Myke towers",
+      isPodcast : false,
     },
     {
       title: "HIT ME HARD AND SOFT",
@@ -45,6 +48,7 @@ export async function up(queryInterface, Sequelize) {
       genre: "Pop",
       artistId: 4,
       artistName: "Billie Eilish",
+      isPodcast : false,
     },
     {
       title: "Hybrid Theory",
@@ -53,6 +57,7 @@ export async function up(queryInterface, Sequelize) {
       genre: "Rock Alternativo",
       artistId: 5,
       artistName: "Linkin Park",
+      isPodcast : false,
     },
     {
       title: "SOL MARIA",
@@ -61,6 +66,7 @@ export async function up(queryInterface, Sequelize) {
       genre: "Trap",
       artistId: 6,
       artistName: "Eladio carrión",
+      isPodcast : false,
     },
     {
       title: "DON KBRN",
@@ -69,6 +75,14 @@ export async function up(queryInterface, Sequelize) {
       genre: "Rap",
       artistId: 6,
       artistName: "Eladio carrión",
+      isPodcast : false,
+    },
+    {
+      title: "La Cruda",
+      year: 2023,
+      image: "https://cloudfront-us-east-1.images.arcpublishing.com/infobae/QBA6DGSE3ZEFXA25CSWMHZFZ2Q.jpg",
+      artistName: "Podcast Olga",
+      isPodcast: true,
     }
   ]);
 }

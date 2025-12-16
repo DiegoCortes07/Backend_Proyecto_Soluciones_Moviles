@@ -56,7 +56,7 @@ User.init(
         language: {
             type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: "en",
+            defaultValue: "es",
         },
         theme: {
             type: DataTypes.STRING,
@@ -66,7 +66,7 @@ User.init(
         explicitContent: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
-            defaultValue: false,
+            defaultValue: true,
         },
     },
     {

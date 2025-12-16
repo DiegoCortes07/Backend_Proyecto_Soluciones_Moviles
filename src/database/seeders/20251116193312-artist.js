@@ -19,7 +19,7 @@ export async function up(queryInterface, Sequelize) {
     {
       name: 'The Beatles',
       description: 'An iconic British rock band formed in Liverpool in 1960.',
-      image: 'https://mott.pe/noticias/wp-content/uploads/2018/01/Portada-Beatles.jpg',
+      image: 'https://static.wikia.nocookie.net/michael-jackson/images/1/1a/Thebeatles.webp/revision/latest?cb=20241031031238&path-prefix=es',
     },
     {
       name: "bad bunny",
