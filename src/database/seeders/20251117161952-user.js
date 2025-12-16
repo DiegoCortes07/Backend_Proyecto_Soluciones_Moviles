@@ -17,11 +17,13 @@ export async function up(queryInterface, Sequelize) {
       username: 'diego',
       email: 'diego@test.com',
       password: bcrypt.hashSync('password123', 10),
+      enabled: true,
     },
     {
       username: 'cristian',
       email: 'cristian@test.com',
       password: bcrypt.hashSync('password123', 10),
+      enabled: true,
     }
   ]);
 }
@@ -29,4 +31,3 @@ export async function up(queryInterface, Sequelize) {
 export async function down(queryInterface, Sequelize) {
   return queryInterface.bulkDelete('user', null, {});
 }
-

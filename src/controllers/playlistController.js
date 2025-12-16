@@ -4,7 +4,7 @@ import Playlist from "../models/playlist.js";
 import PlaylistSong from "../models/playlistSong.js";
 import Song from "../models/song.js";
 import jwt from "jsonwebtoken";
-import { uploadFile } from "../config/cloudinary.js";
+import { uploadCoverFile, deleteFile } from "../config/cloudinary.js";
 
 export const getUserPlaylists = async (req = request, res = response) => {
     const token = req.header("Authorization")?.replace("Bearer ", "");
@@ -234,13 +234,18 @@ export const uploadPlaylistImage = async (req = request, res = response) => {
         if (playlist.userId !== user.id) {
             return res.status(403).send("No tienes permiso para modificar esta playlist");
         }
-        console.log("Archivos recibidos:", req.files);
-        if (!req.files) {
+        console.log(req.file)
+
+        if (!req.file) {
             return res.status(400).send("No se proporcionó ninguna imagen");
         }
 
-        const file = req.files.image;
-        const fileUploaded = await uploadFile(file);
+        const file = req.file.buffer;
+
+        if (playlist.image_public_id) {
+            await deleteFile(playlist.image_public_id);
+        }
+        const fileUploaded = await uploadCoverFile(file);
 
         // Guardar URL en DB
         playlist.image_url = fileUploaded.secure_url;

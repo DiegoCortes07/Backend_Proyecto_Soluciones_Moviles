@@ -7,7 +7,10 @@ import Like from "../models/like.js";
 import { enviarCorreo } from "../mail/mailsystem.js";
 import fs from "fs";
 import path from "path";
-import { uploadFile } from "../config/cloudinary.js";
+import {uploadImageFile, deleteFile} from "../config/cloudinary.js";
+
+const templatePath = path.resolve("src/mail/template/confirmMail.html");
+let html = fs.readFileSync(templatePath, "utf8");
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -15,28 +18,81 @@ const generateToken = (userId) => {
   });
 };
 
-const templatePath = path.resolve("src/mail/template/confirmMail.html");
-let html = fs.readFileSync(templatePath, "utf8");
+const generateEmailToken = (email) =>{
+    return jwt.sign({ id: email }, process.env.JWT_SECRET, {
+        expiresIn: '40m',
+    });
+};
+const createMail = async (email, username, id) =>{
+        let newEmail = email + "||";
+        if(id){
+            newEmail += `${id}`; 
+        }
+        const emailToken = generateEmailToken(newEmail);
+        const frontUrl = `${process.env.API_URL}verify-mail?token=${emailToken}`;
+        console.log(username)
+        html = html
+            .replace(/{{USER_NAME}}/g, username)
+            .replace(/{{VERIFICATION_URL}}/g, frontUrl)
+            .replace(/{{APP_NAME}}/g, "Tunesly")
+            .replace(/{{YEAR}}/g, new Date().getFullYear());
+        console.log(email);
+        console.log(frontUrl);
+        await enviarCorreo(email, "Confirmacion de Email",html);
+}
+
 
 export const register = async (req = request, res = response) => {
-  const { username, email, password } = req.body;
+    const { username, email, password } = req.body;
 
-  // Validar que no falten campos
-  if (!username || !email || !password) {
-    return res.status(400).json({
-      message:
-        "Faltan campos obligatorios. Asegúrate de completar nombre, correo y contraseña.",
-    });
-  }
+    // Validar que no falten campos
+    if (!username || !email || !password) {
+        return res.status(400).json({
+            message:
+                "Faltan campos obligatorios. Asegúrate de completar nombre, correo y contraseña.",
+        });
+    }
 
-  try {
-    // Verificar si ya existe un usuario con el correo proporcionado
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(409).json({
-        message:
-          "El correo electrónico ya está en uso. Por favor, usa otro correo.",
-      });
+    try {
+        // Verificar si ya existe un usuario con el correo proporcionado
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.status(409).json({
+                message:
+                    "El correo electrónico ya está en uso. Por favor, usa otro correo.",
+            });
+        }
+
+        // Hashear la contraseña
+        const hashedPassword = bcrypt.hashSync(password, 10);
+
+        // Crear un nuevo usuario
+        const newUser = await User.create({
+            username,
+            email,
+            password: hashedPassword,
+        });
+
+        createMail(email,username);
+
+        // Responder con el usuario y el token
+        return res.status(201).json({
+            user: {
+                id: newUser.id,
+                username: newUser.username,
+                email: newUser.email,
+                plan: newUser.plan,
+                profilePhoto: newUser.profilePhoto,
+                language: newUser.language,
+                theme: newUser.theme,
+                explicitContent: newUser.explicitContent,
+            }
+        });
+    } catch (error) {
+        console.error("Error al registrar usuario:", error);
+        return res.status(500).json({
+            message: "Hubo un error en el servidor. Por favor, intenta más tarde.",
+        });
     }
 
     // Hashear la contraseña
@@ -94,28 +150,23 @@ export const login = async (req = request, res = response) => {
       return res.status(401).send("Credenciales inválidas");
     }
 
+    if(!user.enabled){
+         return res.status(401).send({blocked:true,msg:"La cuenta esta inhabilitada"});
+    }
+
     const token = generateToken(user.id);
 
-    /*html = html
-            .replace(/{{USER_NAME}}/g, user.username)
-            .replace(/{{VERIFICATION_URL}}/g, "aa")
-            .replace(/{{APP_NAME}}/g, "Tunesly")
-            .replace(/{{YEAR}}/g, new Date().getFullYear());
-
-        await enviarCorreo(email, "confirmacion",html);
-        */
-
     res.status(200).json({
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        token,
-      },
+        user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            token,
+        },
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).send("Error del servidor");
+      console.error(error);
+      return res.status(500).send("Error del servidor");
   }
 };
 
@@ -278,7 +329,37 @@ export const changeConfig = async (req = request, res = response) => {
     return res.status(500).send("Error al actualizar la configuración");
   }
 };
+export const validateEmail = async (req = request, res = response) => {
+    const {token} = req.body
 
+    try{
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const email = decoded.id.split("||");
+        if(email[1]){
+            const userExist = await User.findByPk(email[1]);
+            if(!userExist){
+                return res.status(404).send("Usuario no encontrado");
+            }
+            userExist.email = email[0];
+            await userExist.save();
+            res.status(200).json({msg: "Email verificado y activo actualmente"});
+        }
+        else{
+            const emailExist = await User.findOne({where: {email:email}});
+            if(!emailExist){
+                return res.status(404).send("Usuario no encontrado");
+            }
+            emailExist.enabled = true;
+            await emailExist.save();
+            res.status(200).json({msg: "Email verificado"});
+        }
+
+
+    }catch(error){
+        console.error(error);
+        return res.status(500).send("Error del servidor");
+    }
+};
 export const changePassword = async (req = request, res = response) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
@@ -302,7 +383,22 @@ export const changePassword = async (req = request, res = response) => {
     return res.status(500).send("Error al actualizar la contraseña");
   }
 };
-
+const toggleLike = async (userId, songId) => {
+    try {
+        // deshabilitar el like existente
+        const like = await Like.findOne({ where: { userId, songId } });
+        if (like) {
+            like.enabled = !like.enabled;
+            await like.save();
+            return like.enabled ? "Like habilitado" : "Like deshabilitado";
+        } else {
+            return "No se encontró el like para alternar";
+        }
+    } catch (error) {
+        console.error(error);
+        return "Error al alternar el like";
+    }
+}
 export const changeProfilePhoto = async (req = request, res = response) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");

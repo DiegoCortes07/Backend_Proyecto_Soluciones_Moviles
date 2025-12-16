@@ -1,11 +1,12 @@
 import Router from "express";
-import { register, login, allUsers, getUserProfile, likedSongs, likeSong, changeConfig, changePassword, changeUserData, changeProfilePhoto } from "../../controllers/userController.js";
+import { register, login, allUsers, getUserProfile, likedSongs, likeSong, changeConfig, changePassword, changeUserData, changeProfilePhoto, validateEmail } from "../../controllers/userController.js";
 
 const router = Router();
 
 router.post('/register', register);
 router.post('/login', login);
 router.get('/all', allUsers);
+router.post('/verifmail',validateEmail)
 router.get('/me', getUserProfile);
 router.get('/liked-songs', likedSongs);
 router.post('/like-song/:songId', likeSong);
