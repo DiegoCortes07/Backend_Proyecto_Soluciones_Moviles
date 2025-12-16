@@ -16,3 +16,8 @@ get http://localhost:8080/api/albums/
 ###
 // obtener album por ID
 get http://localhost:8080/api/albums/1
+
+###
+
+// obtener canciones de un album por ID
+get http://localhost:8080/api/albums/1/songs

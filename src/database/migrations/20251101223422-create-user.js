@@ -15,6 +15,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      alias: {
+            type: Sequelize.STRING,
+            allowNull:true
+      },
       email: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -23,6 +27,11 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      enabled: {
+        type: Sequelize.BOOLEAN,
+        allowNull:true,
+        defaultValue: false
       },
       plan: {
         type: Sequelize.STRING,

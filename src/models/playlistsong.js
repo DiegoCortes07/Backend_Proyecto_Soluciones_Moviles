@@ -31,6 +31,10 @@ PlaylistSong.init(
                 key: "id",
             },
         },
+        enabled: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true,
+        },
     },
     {
         sequelize: db,

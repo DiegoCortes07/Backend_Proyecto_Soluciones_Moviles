@@ -35,7 +35,7 @@ module.exports = {
       },
       artistId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'artist',
           key: 'id',
@@ -61,14 +61,19 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      artistName : {
+      artistName: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      imageUrl : {
+      imageUrl: {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      isPodcast: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      }
     });
   },
 

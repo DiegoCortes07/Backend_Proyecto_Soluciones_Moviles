@@ -6,6 +6,7 @@ class User extends Model {
     static username;
     static email;
     static password;
+    static enabled;
     static plan;
     static profilePhoto;
     static language;
@@ -24,6 +25,10 @@ User.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
+        alias: {
+            type: DataTypes.STRING,
+            allowNull:true
+        },
         email: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -32,6 +37,11 @@ User.init(
         password: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        enabled: {
+            type: DataTypes.BOOLEAN,
+            allowNull:true,
+            defaultValue: false
         },
         plan: {
             type: DataTypes.STRING,
@@ -46,7 +56,7 @@ User.init(
         language: {
             type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: "en",
+            defaultValue: "es",
         },
         theme: {
             type: DataTypes.STRING,
@@ -56,7 +66,7 @@ User.init(
         explicitContent: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
-            defaultValue: false,
+            defaultValue: true,
         },
     },
     {

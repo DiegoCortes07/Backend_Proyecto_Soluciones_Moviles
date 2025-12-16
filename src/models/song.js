@@ -9,6 +9,7 @@ class Song extends Model {
     static explicit
     static enabled
     static year
+    static isPodcast
 }
 
 Song.init(
@@ -52,6 +53,11 @@ Song.init(
         imageUrl : {
             type: DataTypes.STRING,
             allowNull: true,
+        },
+        isPodcast: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false,
         },
     },
     {

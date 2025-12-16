@@ -1,11 +1,21 @@
 import Router from "express";
-import { register , login , allUsers, getUserPlaylists} from "../../controllers/userController.js";
+import { register, login, allUsers, getUserProfile, likedSongs, likeSong, changeConfig, changePassword, changeUserData, changeProfilePhoto, validateEmail } from "../../controllers/userController.js";
+import multer from "multer";
+
+const storage = multer.memoryStorage();
+const upload = multer({storage: storage});
 
 const router = Router();
 
 router.post('/register', register);
 router.post('/login', login);
 router.get('/all', allUsers);
-router.get('/playlists', getUserPlaylists);
-
+router.post('/verifmail',validateEmail)
+router.get('/me', getUserProfile);
+router.get('/liked-songs', likedSongs);
+router.post('/like-song/:songId', likeSong);
+router.put('/change-config', changeConfig);
+router.put('/change-password', changePassword);
+router.put('/change-userdata', changeUserData);
+router.put('/change-image', upload.single("file") ,changeProfilePhoto);
 export default router;

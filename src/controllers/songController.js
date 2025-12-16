@@ -1,11 +1,11 @@
 import { request, response } from "express";
 import Song from "../models/song.js";
-import uploadFile from "../config/cloudinary.js";
+import {uploadMusicFile} from "../config/cloudinary.js";
 import Artist from "../models/artist.js";
 
 export const uploadSong = async (req = request, res = response) => {
 
-    const result = await uploadFile(req.files.song);
+    const result = await uploadMusicFile(req.files.song);
 
     if (!result || !result.public_id || !result.secure_url) {
         return res.status(500).json({
@@ -52,7 +52,7 @@ export const uploadSong = async (req = request, res = response) => {
 export const getAllSongs = async (req = request, res = response) => {
    console.log("Song importado es:", Song);
     try {
-        const songs = await Song.findAll();
+        const songs = await Song.findAll({ where: { enabled: true, isPodcast: false } });
         return res.status(200).json(songs);
     }
     catch (error) {
