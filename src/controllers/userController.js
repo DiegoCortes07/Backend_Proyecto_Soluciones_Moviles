@@ -94,40 +94,6 @@ export const register = async (req = request, res = response) => {
             message: "Hubo un error en el servidor. Por favor, intenta más tarde.",
         });
     }
-
-    // Hashear la contraseña
-    const hashedPassword = bcrypt.hashSync(password, 10);
-
-    // Crear un nuevo usuario
-    const newUser = await User.create({
-      username,
-      email,
-      password: hashedPassword,
-    });
-
-    // Generar el token de autenticación
-    const token = generateToken(newUser.id);
-
-    // Responder con el usuario y el token
-    return res.status(201).json({
-      user: {
-        id: newUser.id,
-        username: newUser.username,
-        email: newUser.email,
-        plan: newUser.plan,
-        profilePhoto: newUser.profilePhoto,
-        language: newUser.language,
-        theme: newUser.theme,
-        explicitContent: newUser.explicitContent,
-        token,
-      },
-    });
-  } catch (error) {
-    console.error("Error al registrar usuario:", error);
-    return res.status(500).json({
-      message: "Hubo un error en el servidor. Por favor, intenta más tarde.",
-    });
-  }
 };
 
 export const login = async (req = request, res = response) => {
@@ -281,23 +247,6 @@ export const likeSong = async (req = request, res = response) => {
   }
 };
 
-const toggleLike = async (userId, songId) => {
-  try {
-    // deshabilitar el like existente
-    const like = await Like.findOne({ where: { userId, songId } });
-    if (like) {
-      like.enabled = !like.enabled;
-      await like.save();
-      return like.enabled ? "Like habilitado" : "Like deshabilitado";
-    } else {
-      return "No se encontró el like para alternar";
-    }
-  } catch (error) {
-    console.error(error);
-    return "Error al alternar el like";
-  }
-};
-
 export const changeConfig = async (req = request, res = response) => {
   try {
     const user = await User.findByPk(req.body.userId);
@@ -412,24 +361,11 @@ export const changeProfilePhoto = async (req = request, res = response) => {
       return res.status(404).send("Usuario no encontrado");
     }
 
-    // Detectar imagen desde distintas claves o como base64/URL
-    let file = null;
-    if (req.files) {
-      file = req.files.image || req.files.file || req.files.photo;
-      // Si es array (múltiples archivos), tomar el primero
-      if (Array.isArray(file)) file = file[0];
-    }
-
-    // Si no hay archivo, intentar con cuerpo (data URI/base64 o URL)
     let uploaded = null;
-    if (file && file.tempFilePath) {
-      uploaded = await uploadFile(file);
-    } else if (req.body && req.body.image) {
+    if (req.file) {
       // Permitir subir string (data URI o URL)
-      uploaded = await cloudinary.v2.uploader.upload(req.body.image, {
-        folder: "music-api",
-        resource_type: "image",
-      });
+       uploaded = await uploadImageFile(req.file.buffer);
+
     } else {
       return res.status(400).send("No se proporcionó ninguna imagen");
     }

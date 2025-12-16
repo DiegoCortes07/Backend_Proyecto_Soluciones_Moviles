@@ -1,7 +1,7 @@
 import { request, response } from "express";
 import Artist from "../models/artist.js";
 import Album from "../models/album.js";
-import { uploadFile } from "../config/cloudinary.js";
+import { uploadImageFile } from "../config/cloudinary.js";
 
 export const createAlbumForArtist = async (req = request, res = response) => {
     const { artistId } = req.params;
@@ -15,7 +15,7 @@ export const createAlbumForArtist = async (req = request, res = response) => {
         let imageUrl = null;
         // Si llega archivo de imagen vía express-fileupload, subirlo a Cloudinary
         if (req.files && req.files.image) {
-            const uploaded = await uploadFile(req.files.image);
+            const uploaded = await uploadImageFile(req.files.image);
             imageUrl = uploaded.secure_url;
         }
 

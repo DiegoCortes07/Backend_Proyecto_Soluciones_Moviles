@@ -21,10 +21,9 @@ class Server {
     this.port = process.env.PORT || 3000;
     this.server = http.createServer(this.app);
 
-    this.middlewares();
     this.connectDB();
-    this.middlewares();
     this.routes();
+    this.middlewares();
   }
 
   async connectDB() {
